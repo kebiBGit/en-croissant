@@ -37,6 +37,26 @@
   );
 }
 
+.squareHighlightMode :global(square.right-click-highlight-green) {
+  background-color: color-mix(in srgb, var(--right-click-brush-green) 60%, transparent) !important;
+}
+
+.squareHighlightMode :global(square.right-click-highlight-red) {
+  background-color: color-mix(in srgb, var(--right-click-brush-red) 60%, transparent) !important;
+}
+
+.squareHighlightMode :global(square.right-click-highlight-blue) {
+  background-color: color-mix(in srgb, var(--right-click-brush-blue) 60%, transparent) !important;
+}
+
+.squareHighlightMode :global(square.right-click-highlight-yellow) {
+  background-color: color-mix(in srgb, var(--right-click-brush-yellow) 60%, transparent) !important;
+}
+
+.squareHighlightMode :global(.cg-shapes circle) {
+  display: none;
+}
+
 .chessboard
   > :global(.cg-wrap)
   > :global(cg-container)

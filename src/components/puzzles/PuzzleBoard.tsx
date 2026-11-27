@@ -12,10 +12,12 @@ import {
   eraseDrawablesOnClickAtom,
   jumpToNextPuzzleAtom,
   moveHighlightAtom,
+  rightClickHighlightAtom,
   showCoordinatesAtom,
   showDestsAtom,
 } from "@/state/atoms";
 import classes from "@/styles/Chessboard.module.css";
+import { getRightClickSquareHighlights } from "@/utils/rightClickHighlight";
 import { positionFromFen } from "@/utils/chessops";
 import type { Completion, Puzzle } from "@/utils/puzzles";
 import { getNodeAtPath, treeIteratorMainLine } from "@/utils/treeReducer";
@@ -39,6 +41,7 @@ function PuzzleBoard({
   const root = useStore(store, (s) => s.root);
   const position = useStore(store, (s) => s.position);
   const moveHighlight = useAtomValue(moveHighlightAtom);
+  const rightClickHighlight = useAtomValue(rightClickHighlightAtom);
   const showDests = useAtomValue(showDestsAtom);
   const boardShapes = useStore(store, (s) => s.currentNode().shapes);
   const setShapes = useStore(store, (s) => s.setShapes);
@@ -50,6 +53,8 @@ function PuzzleBoard({
   const [jumpToNextPuzzleImmediately] = useAtom(jumpToNextPuzzleAtom);
 
   const currentNode = getNodeAtPath(root, position);
+  const squareHighlights =
+    rightClickHighlight === "square" ? getRightClickSquareHighlights(boardShapes) : new Map();
 
   let puzzle: Puzzle | null = null;
   if (puzzles.length > 0) {
@@ -128,7 +133,9 @@ function PuzzleBoard({
   return (
     <Box w="100%" h="100%" ref={parentRef}>
       <Box
-        className={classes.chessboard}
+        className={`${classes.chessboard} ${
+          rightClickHighlight === "square" ? classes.squareHighlightMode : ""
+        }`}
         onClick={() => {
           eraseDrawablesOnClick && clearShapes();
         }}
@@ -155,6 +162,7 @@ function PuzzleBoard({
           coordinates={showCoordinates !== "no"}
           coordinatesOnSquares={showCoordinates === "all"}
           orientation={orientation}
+          highlight={{ custom: squareHighlights }}
           drawable={{
             enabled: true,
             visible: true,

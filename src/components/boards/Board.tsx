@@ -40,6 +40,7 @@ import {
   practiceCardStartTimeAtom,
   practiceSessionStatsAtom,
   practiceStateAtom,
+  rightClickHighlightAtom,
   showArrowsAtom,
   showConsecutiveArrowsAtom,
   showCoordinatesAtom,
@@ -53,6 +54,7 @@ import { ANNOTATION_INFO, isBasicAnnotation } from "@/utils/annotation";
 import { getMoveDestination, getVariationLine } from "@/utils/chess";
 import { chessopsError, forceEnPassant, positionFromFen } from "@/utils/chessops";
 import { getTabFile, getTabGameNumber } from "@/utils/tabs";
+import { getRightClickSquareHighlights } from "@/utils/rightClickHighlight";
 import ShowMaterial from "../common/ShowMaterial";
 import { TreeStateContext } from "../common/TreeStateContext";
 import FideInfo from "../databases/FideInfo";
@@ -136,6 +138,7 @@ function Board({
   const moveInput = useAtomValue(moveInputAtom);
   const showDests = useAtomValue(showDestsAtom);
   const moveHighlight = useAtomValue(moveHighlightAtom);
+  const rightClickHighlight = useAtomValue(rightClickHighlightAtom);
   const showArrows = useAtomValue(showArrowsAtom);
   const showVariationArrows = useAtomValue(showVariationArrowsAtom);
   const showConsecutiveArrows = useAtomValue(showConsecutiveArrowsAtom);
@@ -375,6 +378,10 @@ function Board({
     currentNode.move && square !== undefined
       ? [chessgroundMove(currentNode.move)[0], makeSquare(square)!]
       : undefined;
+  const squareHighlights =
+    rightClickHighlight === "square"
+      ? getRightClickSquareHighlights(currentNode.shapes)
+      : new Map();
 
   const topPlayer = orientation === "white" ? headers.black : headers.white;
   const bottomPlayer = orientation === "white" ? headers.white : headers.black;
@@ -479,7 +486,9 @@ function Board({
                     }
                   : undefined
               }
-              className={`${classes.chessboard} ${is3d ? "is3d" : ""}`}
+              className={`${classes.chessboard} ${is3d ? "is3d" : ""} ${
+                rightClickHighlight === "square" ? classes.squareHighlightMode : ""
+              }`}
               ref={boardRef}
               onClick={() => {
                 eraseDrawablesOnClick && clearShapes();
@@ -578,6 +587,7 @@ function Board({
                 turnColor={turn}
                 check={moveHighlight && pos?.isCheck()}
                 lastMove={moveHighlight && !editingMode ? lastMove : undefined}
+                highlight={{ custom: squareHighlights }}
                 premovable={{
                   enabled: enablePremoves && !editingMode && !viewOnly,
                 }}

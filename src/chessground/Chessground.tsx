@@ -5,6 +5,7 @@ import { Box } from "@mantine/core";
 import { useAtomValue } from "jotai";
 import { type Ref, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { boardImageAtom, is3dAtom, moveMethodAtom, pieceAnimationAtom } from "@/state/atoms";
+import { RIGHT_CLICK_BRUSHES } from "@/utils/rightClickHighlight";
 import { syncBoardBounds } from "./syncBoardBounds";
 
 const BOARD_COORDINATE_COLORS: Record<string, { white: string; black: string }> = {
@@ -52,6 +53,15 @@ function getBoardCoordinateColors(boardImage: string): {
 }
 
 const PIECE_ANIMATION_MS = { none: 0, fast: 120, normal: 200, slow: 400 };
+
+function syncRightClickBrushColors(element: HTMLElement, api: Api) {
+  for (const brush of RIGHT_CLICK_BRUSHES) {
+    element.style.setProperty(
+      `--right-click-brush-${brush}`,
+      api.state.drawable.brushes[brush].color,
+    );
+  }
+}
 
 export function pieceAnimation(
   speed: keyof typeof PIECE_ANIMATION_MS,
@@ -131,6 +141,7 @@ export function Chessground({ ref, ...props }: ChessgroundProps) {
         addPieceZIndex: is3d,
         animation: pieceAnimation(animationSpeed, props.animation),
       });
+      syncRightClickBrushColors(boardRef.current, chessgroundApi);
       setApi(chessgroundApi);
     }
   }, [api, props, boardRef]);
@@ -157,6 +168,7 @@ export function Chessground({ ref, ...props }: ChessgroundProps) {
       addPieceZIndex: is3d,
       animation: pieceAnimation(animationSpeed, props.animation),
     });
+    if (api && boardRef.current) syncRightClickBrushColors(boardRef.current, api);
   }, [api, props, moveMethod, is3d, animationSpeed]);
 
   const boardImage = useAtomValue(boardImageAtom);
